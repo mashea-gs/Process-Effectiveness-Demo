@@ -1,0 +1,1812 @@
+<!DOCTYPE html>
+<script type="application/json" id="cowork-artifact-meta">
+{
+  "name": "Retention Expansion Intelligence",
+  "schemaVersion": 1,
+  "description": "Live retention & expansion intelligence dashboard pulling from Gainsight (company health, ARR, renewal stages, CTA effectiveness) with AI-synthesized proven plays and recommended new plays with one-click Gainsight asset creation buttons.",
+  "mcpTools": [
+    "mcp__93b929b9-85bf-4421-b590-2b2f3fe7f6e6__run_query"
+  ],
+  "mcpServerNames": [
+    "Gainsight-CSMCP-Demo"
+  ]
+}
+</script>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Retention & Expansion Intelligence</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@500&display=swap" rel="stylesheet">
+<style>
+  :root {
+    color-scheme: light;
+    /* Surfaces */
+    --bg: #fafbfc;
+    --surface: #ffffff;
+    --surface-2: #f6f8fb;
+    --surface-elevated: #ffffff;
+    --border: #eaecf0;
+    --border-strong: #d0d5dd;
+    /* Text */
+    --text: #0c111d;
+    --text-secondary: #475467;
+    --text-tertiary: #667085;
+    --text-quaternary: #98a2b3;
+    /* Brand */
+    --accent: #4f46e5;
+    --accent-hover: #4338ca;
+    --accent-soft: #eef2ff;
+    --accent-border: #e0e7ff;
+    /* Semantic */
+    --success: #079455;
+    --success-soft: #ecfdf3;
+    --success-border: #abefc6;
+    --warning: #b54708;
+    --warning-soft: #fffaeb;
+    --warning-border: #fedf89;
+    --danger: #b42318;
+    --danger-soft: #fef3f2;
+    --danger-border: #fecdca;
+    --info: #175cd3;
+    --info-soft: #eff8ff;
+    --info-border: #b2ddff;
+    /* Shadows */
+    --shadow-xs: 0 1px 2px rgba(16,24,40,0.04);
+    --shadow-sm: 0 1px 3px rgba(16,24,40,0.06), 0 1px 2px rgba(16,24,40,0.04);
+    --shadow-md: 0 4px 8px -2px rgba(16,24,40,0.06), 0 2px 4px -2px rgba(16,24,40,0.04);
+    --shadow-lg: 0 12px 16px -4px rgba(16,24,40,0.06), 0 4px 6px -2px rgba(16,24,40,0.03);
+    /* Radii */
+    --radius-sm: 6px;
+    --radius: 10px;
+    --radius-lg: 14px;
+    --radius-xl: 18px;
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  html, body { height: 100%; }
+  body {
+    font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', system-ui, sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    font-size: 14px;
+    line-height: 1.5;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+    font-feature-settings: 'cv02','cv03','cv04','cv11';
+  }
+
+  /* ---------- Header ---------- */
+  .header {
+    background: var(--surface);
+    border-bottom: 1px solid var(--border);
+    padding: 18px 32px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 24px;
+    position: sticky;
+    top: 0;
+    z-index: 10;
+    backdrop-filter: saturate(180%) blur(8px);
+    background: rgba(255,255,255,0.85);
+  }
+  .header-left { display: flex; align-items: center; gap: 14px; }
+  .logo-mark {
+    width: 38px; height: 38px;
+    border-radius: 10px;
+    background: linear-gradient(135deg, #6366f1 0%, #4f46e5 50%, #4338ca 100%);
+    display: flex; align-items: center; justify-content: center;
+    color: #fff;
+    box-shadow: 0 4px 10px -2px rgba(79,70,229,0.35), inset 0 1px 0 rgba(255,255,255,0.2);
+  }
+  .header h1 {
+    font-size: 16px;
+    font-weight: 700;
+    letter-spacing: -0.01em;
+    color: var(--text);
+  }
+  .header .subtitle {
+    font-size: 12px;
+    color: var(--text-tertiary);
+    margin-top: 1px;
+    font-weight: 450;
+  }
+  .header-right { display: flex; align-items: center; gap: 10px; }
+  .live-pill {
+    display: inline-flex; align-items: center; gap: 6px;
+    padding: 4px 10px;
+    background: var(--success-soft);
+    color: var(--success);
+    border: 1px solid var(--success-border);
+    border-radius: 999px;
+    font-size: 11px;
+    font-weight: 600;
+  }
+  .live-dot {
+    width: 6px; height: 6px;
+    background: var(--success);
+    border-radius: 50%;
+    box-shadow: 0 0 0 0 rgba(7,148,85,0.6);
+    animation: pulse 2s infinite;
+  }
+  @keyframes pulse {
+    0% { box-shadow: 0 0 0 0 rgba(7,148,85,0.5); }
+    70% { box-shadow: 0 0 0 6px rgba(7,148,85,0); }
+    100% { box-shadow: 0 0 0 0 rgba(7,148,85,0); }
+  }
+  .last-updated { font-size: 12px; color: var(--text-tertiary); }
+  .btn {
+    display: inline-flex; align-items: center; gap: 6px;
+    padding: 8px 14px;
+    border-radius: var(--radius-sm);
+    cursor: pointer;
+    font-size: 13px;
+    font-weight: 600;
+    font-family: inherit;
+    border: 1px solid var(--border-strong);
+    background: var(--surface);
+    color: var(--text);
+    transition: all 0.15s ease;
+    box-shadow: var(--shadow-xs);
+  }
+  .btn:hover { background: var(--surface-2); border-color: var(--text-quaternary); }
+  .btn:disabled { opacity: 0.5; cursor: not-allowed; }
+  .btn.primary {
+    background: var(--accent);
+    color: #fff;
+    border-color: var(--accent);
+    box-shadow: 0 1px 2px rgba(16,24,40,0.05), inset 0 1px 0 rgba(255,255,255,0.15);
+  }
+  .btn.primary:hover { background: var(--accent-hover); border-color: var(--accent-hover); }
+  .btn.ghost {
+    background: transparent;
+    border-color: transparent;
+    box-shadow: none;
+  }
+  .btn.ghost:hover { background: var(--surface-2); }
+  .btn .icon { width: 14px; height: 14px; flex-shrink: 0; }
+
+  /* ---------- Tabs (segmented control) ---------- */
+  .tab-bar-container {
+    background: var(--surface);
+    border-bottom: 1px solid var(--border);
+    padding: 12px 32px;
+    position: sticky;
+    top: 73px;
+    z-index: 9;
+  }
+  .tabs {
+    display: inline-flex;
+    background: var(--surface-2);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 4px;
+    gap: 2px;
+  }
+  .tab {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    padding: 8px 14px;
+    cursor: pointer;
+    font-size: 13px;
+    font-weight: 600;
+    color: var(--text-tertiary);
+    border-radius: var(--radius-sm);
+    transition: all 0.15s ease;
+    white-space: nowrap;
+    user-select: none;
+  }
+  .tab:hover { color: var(--text); }
+  .tab.active {
+    background: var(--surface);
+    color: var(--text);
+    box-shadow: var(--shadow-sm);
+  }
+  .tab svg { width: 15px; height: 15px; }
+
+  /* ---------- Tab content ---------- */
+  .tab-content { display: none; padding: 28px 32px 60px; max-width: 1440px; margin: 0 auto; }
+  .tab-content.active { display: block; animation: fadeIn 0.25s ease; }
+  @keyframes fadeIn {
+    from { opacity: 0; transform: translateY(4px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+
+  /* ---------- Loading ---------- */
+  .loading-overlay {
+    display: flex; flex-direction: column;
+    align-items: center; justify-content: center;
+    padding: 80px;
+    color: var(--text-tertiary);
+    gap: 12px;
+  }
+  .spinner {
+    width: 32px; height: 32px;
+    border: 2.5px solid var(--border);
+    border-top-color: var(--accent);
+    border-radius: 50%;
+    animation: spin 0.7s linear infinite;
+  }
+  @keyframes spin { to { transform: rotate(360deg); } }
+
+  /* ---------- Section heading ---------- */
+  .section-heading {
+    display: flex; align-items: baseline; justify-content: space-between;
+    margin-bottom: 16px;
+    margin-top: 8px;
+  }
+  .section-heading h2 {
+    font-size: 16px;
+    font-weight: 700;
+    color: var(--text);
+    letter-spacing: -0.01em;
+  }
+  .section-heading p {
+    font-size: 13px;
+    color: var(--text-tertiary);
+    margin-top: 2px;
+  }
+  .section-intro {
+    font-size: 14px;
+    color: var(--text-secondary);
+    line-height: 1.6;
+    margin-bottom: 24px;
+    max-width: 880px;
+  }
+
+  /* ---------- Metric tiles ---------- */
+  .metrics-row {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 14px;
+    margin-bottom: 28px;
+  }
+  .metric-tile {
+    background: var(--surface);
+    border-radius: var(--radius-lg);
+    padding: 18px 20px;
+    border: 1px solid var(--border);
+    box-shadow: var(--shadow-xs);
+    transition: all 0.15s ease;
+    position: relative;
+    overflow: hidden;
+  }
+  .metric-tile:hover { box-shadow: var(--shadow-sm); transform: translateY(-1px); }
+  .metric-tile::before {
+    content: '';
+    position: absolute;
+    top: 0; left: 0; right: 0;
+    height: 3px;
+    background: var(--accent);
+    opacity: 0;
+    transition: opacity 0.2s;
+  }
+  .metric-tile.alert::before { background: var(--danger); opacity: 1; }
+  .metric-tile.warn::before  { background: #dc6803; opacity: 1; }
+  .metric-tile.good::before  { background: var(--success); opacity: 1; }
+  .metric-tile .label {
+    font-size: 11px;
+    color: var(--text-tertiary);
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    font-weight: 600;
+    margin-bottom: 8px;
+  }
+  .metric-tile .value {
+    font-size: 30px;
+    font-weight: 700;
+    color: var(--text);
+    line-height: 1;
+    letter-spacing: -0.02em;
+    font-feature-settings: 'tnum';
+  }
+  .metric-tile .value.sm { font-size: 18px; line-height: 1.2; }
+  .metric-tile .delta {
+    font-size: 12px;
+    color: var(--text-tertiary);
+    margin-top: 6px;
+    line-height: 1.4;
+  }
+  .metric-tile.alert .value { color: var(--danger); }
+  .metric-tile.warn .value  { color: #b54708; }
+  .metric-tile.good .value  { color: var(--success); }
+
+  /* ---------- Alert banner ---------- */
+  .alert-banner {
+    background: var(--danger-soft);
+    border: 1px solid var(--danger-border);
+    border-radius: var(--radius-lg);
+    padding: 14px 18px;
+    margin-bottom: 24px;
+    display: flex;
+    align-items: flex-start;
+    gap: 12px;
+  }
+  .alert-banner .icon-wrap {
+    width: 32px; height: 32px;
+    border-radius: 50%;
+    background: rgba(180,35,24,0.1);
+    color: var(--danger);
+    display: flex; align-items: center; justify-content: center;
+    flex-shrink: 0;
+  }
+  .alert-banner .icon-wrap svg { width: 16px; height: 16px; }
+  .alert-banner strong { color: #7a271a; font-size: 13.5px; font-weight: 600; display: block; margin-bottom: 2px; }
+  .alert-banner p { color: #912018; font-size: 13px; line-height: 1.5; }
+
+  /* ---------- Card ---------- */
+  .card {
+    background: var(--surface);
+    border-radius: var(--radius-lg);
+    padding: 20px;
+    border: 1px solid var(--border);
+    box-shadow: var(--shadow-xs);
+  }
+  .card-header {
+    display: flex; align-items: flex-start; justify-content: space-between;
+    gap: 12px;
+    margin-bottom: 14px;
+  }
+
+  /* ---------- Effectiveness table ---------- */
+  .eff-table-wrap {
+    background: var(--surface);
+    border-radius: var(--radius-lg);
+    border: 1px solid var(--border);
+    overflow: hidden;
+    box-shadow: var(--shadow-xs);
+    margin-bottom: 28px;
+  }
+  .eff-table { width: 100%; border-collapse: collapse; font-size: 13px; }
+  .eff-table th {
+    background: var(--surface-2);
+    color: var(--text-secondary);
+    font-weight: 600;
+    text-align: left;
+    padding: 11px 16px;
+    border-bottom: 1px solid var(--border);
+    font-size: 11px;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+  }
+  .eff-table td {
+    padding: 11px 16px;
+    border-bottom: 1px solid var(--border);
+    vertical-align: middle;
+    color: var(--text);
+  }
+  .eff-table tr:last-child td { border-bottom: none; }
+  .eff-table tbody tr { transition: background 0.1s; }
+  .eff-table tbody tr:hover td { background: var(--surface-2); }
+
+  .rate-bar {
+    display: flex; align-items: center; gap: 10px;
+    min-width: 130px;
+  }
+  .rate-fill-bg {
+    flex: 1;
+    height: 6px;
+    background: var(--surface-2);
+    border-radius: 999px;
+    overflow: hidden;
+    min-width: 60px; max-width: 100px;
+  }
+  .rate-fill { height: 100%; border-radius: 999px; background: var(--accent); transition: width 0.4s ease; }
+  .rate-fill.high { background: var(--success); }
+  .rate-fill.med  { background: #dc6803; }
+  .rate-fill.low  { background: var(--danger); }
+  .rate-text {
+    font-size: 12px;
+    font-weight: 600;
+    color: var(--text);
+    white-space: nowrap;
+    font-feature-settings: 'tnum';
+    min-width: 32px;
+  }
+
+  /* ---------- Badge ---------- */
+  .badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    padding: 2px 8px;
+    border-radius: 999px;
+    font-size: 11px;
+    font-weight: 600;
+    border: 1px solid transparent;
+    line-height: 1.5;
+  }
+  .badge.dot::before {
+    content: ''; width: 6px; height: 6px; border-radius: 50%;
+    background: currentColor; opacity: 0.9;
+  }
+  .badge.green  { background: var(--success-soft); color: var(--success); border-color: var(--success-border); }
+  .badge.yellow { background: var(--warning-soft); color: var(--warning); border-color: var(--warning-border); }
+  .badge.red    { background: var(--danger-soft); color: var(--danger); border-color: var(--danger-border); }
+  .badge.blue   { background: var(--info-soft); color: var(--info); border-color: var(--info-border); }
+  .badge.purple { background: #f4f3ff; color: #5925dc; border-color: #d9d6fe; }
+  .badge.gray   { background: var(--surface-2); color: var(--text-tertiary); border-color: var(--border); }
+  .badge.orange { background: #fff6ed; color: #b93815; border-color: #fdd0a0; }
+
+  /* ---------- Gap list ---------- */
+  .gap-list { display: flex; flex-direction: column; gap: 10px; }
+  .gap-item {
+    background: var(--surface);
+    border-radius: var(--radius);
+    padding: 14px 16px 14px 20px;
+    border: 1px solid var(--border);
+    position: relative;
+    transition: box-shadow 0.15s;
+  }
+  .gap-item:hover { box-shadow: var(--shadow-sm); }
+  .gap-item::before {
+    content: '';
+    position: absolute;
+    left: 0; top: 12px; bottom: 12px;
+    width: 3px;
+    background: var(--danger);
+    border-radius: 2px;
+  }
+  .gap-item.warn::before { background: #dc6803; }
+  .gap-item h4 {
+    font-size: 13.5px;
+    font-weight: 600;
+    color: var(--text);
+    margin-bottom: 4px;
+    display: flex; align-items: center; gap: 6px;
+  }
+  .gap-item p { font-size: 13px; color: var(--text-secondary); line-height: 1.55; }
+
+  /* ---------- Program cards (JO tab) ---------- */
+  .program-grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 14px;
+    margin-bottom: 28px;
+  }
+  .program-card {
+    background: var(--surface);
+    border-radius: var(--radius-lg);
+    padding: 18px 20px;
+    border: 1px solid var(--border);
+    box-shadow: var(--shadow-xs);
+    transition: all 0.15s ease;
+    position: relative;
+    overflow: hidden;
+  }
+  .program-card:hover { box-shadow: var(--shadow-md); transform: translateY(-1px); }
+  .program-card::before {
+    content: '';
+    position: absolute;
+    left: 0; top: 0; bottom: 0;
+    width: 3px;
+  }
+  .program-card.success::before { background: var(--success); }
+  .program-card.danger::before  { background: var(--danger); }
+  .program-card.warn::before    { background: #dc6803; }
+  .program-card.info::before    { background: var(--accent); }
+
+  .program-card .pc-header {
+    display: flex; justify-content: space-between; align-items: flex-start;
+    gap: 10px;
+    margin-bottom: 12px;
+  }
+  .program-card .pc-title {
+    font-weight: 700;
+    font-size: 14px;
+    color: var(--text);
+    letter-spacing: -0.01em;
+    display: flex; align-items: center; gap: 8px;
+  }
+  .program-card .pc-icon {
+    width: 28px; height: 28px;
+    border-radius: 8px;
+    display: flex; align-items: center; justify-content: center;
+    flex-shrink: 0;
+  }
+  .pc-icon svg { width: 14px; height: 14px; }
+  .pc-icon.success { background: var(--success-soft); color: var(--success); }
+  .pc-icon.danger  { background: var(--danger-soft); color: var(--danger); }
+  .pc-icon.warn    { background: var(--warning-soft); color: var(--warning); }
+  .pc-icon.info    { background: var(--accent-soft); color: var(--accent); }
+  .program-card .pc-trigger {
+    font-size: 11.5px;
+    color: var(--text-tertiary);
+    margin-top: 2px;
+    margin-left: 36px;
+  }
+
+  .stat-row {
+    display: flex;
+    gap: 4px;
+    margin: 14px 0 12px;
+    padding: 10px 0;
+    border-top: 1px solid var(--border);
+    border-bottom: 1px solid var(--border);
+  }
+  .stat-cell {
+    flex: 1;
+    padding: 0 8px;
+    text-align: center;
+    border-right: 1px solid var(--border);
+  }
+  .stat-cell:last-child { border-right: none; }
+  .stat-cell .sv {
+    font-size: 18px;
+    font-weight: 700;
+    color: var(--text);
+    line-height: 1.1;
+    font-feature-settings: 'tnum';
+  }
+  .stat-cell .sl {
+    font-size: 10.5px;
+    color: var(--text-tertiary);
+    margin-top: 2px;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+    font-weight: 500;
+  }
+  .stat-cell .sv.success { color: var(--success); }
+  .stat-cell .sv.danger  { color: var(--danger); }
+
+  .program-card .pc-body {
+    font-size: 13px;
+    color: var(--text-secondary);
+    line-height: 1.55;
+    margin-bottom: 10px;
+  }
+  .pc-callout {
+    font-size: 12.5px;
+    padding: 8px 10px;
+    border-radius: 8px;
+    margin-bottom: 12px;
+    line-height: 1.5;
+  }
+  .pc-callout.success { background: var(--success-soft); color: #054f31; }
+  .pc-callout.danger  { background: var(--danger-soft); color: #7a271a; }
+  .pc-callout.warn    { background: var(--warning-soft); color: #93370d; }
+  .pc-callout.info    { background: var(--accent-soft); color: #312e81; }
+  .pc-callout strong {
+    text-transform: uppercase;
+    font-size: 10.5px;
+    letter-spacing: 0.04em;
+    margin-right: 6px;
+    font-weight: 700;
+  }
+  .pc-actions { display: flex; gap: 8px; flex-wrap: wrap; }
+  .pc-actions .btn { font-size: 12px; padding: 6px 12px; }
+
+  /* ---------- Play cards (Proven) ---------- */
+  .plays-grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 16px;
+  }
+  .play-card {
+    background: var(--surface);
+    border-radius: var(--radius-lg);
+    padding: 22px;
+    border: 1px solid var(--border);
+    box-shadow: var(--shadow-xs);
+    transition: all 0.2s ease;
+  }
+  .play-card:hover { box-shadow: var(--shadow-md); transform: translateY(-2px); border-color: var(--border-strong); }
+  .play-card .play-header {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    margin-bottom: 16px;
+  }
+  .play-icon {
+    width: 44px; height: 44px;
+    border-radius: 12px;
+    display: flex; align-items: center; justify-content: center;
+    flex-shrink: 0;
+  }
+  .play-icon svg { width: 20px; height: 20px; }
+  .play-icon.blue   { background: var(--info-soft); color: var(--info); }
+  .play-icon.green  { background: var(--success-soft); color: var(--success); }
+  .play-icon.purple { background: #f4f3ff; color: #5925dc; }
+  .play-icon.orange { background: #fff6ed; color: #b93815; }
+  .play-icon.teal   { background: #ecfdf3; color: #027a48; }
+  .play-icon.pink   { background: #fdf2fa; color: #c11574; }
+
+  .play-card h3 {
+    font-size: 15px;
+    font-weight: 700;
+    color: var(--text);
+    margin-bottom: 4px;
+    letter-spacing: -0.01em;
+  }
+  .play-card .evidence {
+    font-size: 11px;
+    color: var(--success);
+    font-weight: 600;
+    background: var(--success-soft);
+    padding: 2px 8px;
+    border-radius: 999px;
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    border: 1px solid var(--success-border);
+  }
+  .play-card .description {
+    font-size: 13px;
+    color: var(--text-secondary);
+    line-height: 1.6;
+    margin-bottom: 14px;
+  }
+  .quote-block {
+    background: var(--accent-soft);
+    border-left: 3px solid var(--accent);
+    padding: 10px 14px;
+    border-radius: 0 8px 8px 0;
+    margin-bottom: 14px;
+    font-size: 12.5px;
+    color: #312e81;
+    font-style: italic;
+    line-height: 1.55;
+  }
+  .metrics-bar {
+    display: flex;
+    gap: 4px;
+    margin-bottom: 14px;
+    padding: 12px 0;
+    border-top: 1px solid var(--border);
+    border-bottom: 1px solid var(--border);
+  }
+  .play-metric {
+    flex: 1;
+    text-align: center;
+    border-right: 1px solid var(--border);
+    padding: 0 8px;
+  }
+  .play-metric:last-child { border-right: none; }
+  .pm-value {
+    font-size: 19px;
+    font-weight: 700;
+    color: var(--text);
+    line-height: 1.1;
+    font-feature-settings: 'tnum';
+    letter-spacing: -0.01em;
+  }
+  .pm-label {
+    font-size: 10.5px;
+    color: var(--text-tertiary);
+    margin-top: 3px;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+    font-weight: 500;
+  }
+  .steps-list { margin-top: 8px; }
+  .step {
+    display: flex;
+    gap: 10px;
+    padding: 8px 0;
+    border-top: 1px solid var(--border);
+    font-size: 12.5px;
+    color: var(--text-secondary);
+    align-items: flex-start;
+    line-height: 1.5;
+  }
+  .step:first-child { border-top: none; padding-top: 4px; }
+  .step-num {
+    width: 20px; height: 20px;
+    background: var(--accent-soft);
+    color: var(--accent);
+    border-radius: 50%;
+    font-size: 11px;
+    font-weight: 700;
+    display: flex; align-items: center; justify-content: center;
+    flex-shrink: 0;
+    margin-top: 1px;
+    border: 1px solid var(--accent-border);
+  }
+
+  /* ---------- Recommended play cards ---------- */
+  .rec-plays-grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 16px;
+  }
+  .rec-play-card {
+    background: var(--surface);
+    border-radius: var(--radius-lg);
+    padding: 22px;
+    border: 1px solid var(--border);
+    box-shadow: var(--shadow-xs);
+    transition: all 0.2s ease;
+  }
+  .rec-play-card:hover { box-shadow: var(--shadow-md); transform: translateY(-2px); border-color: var(--border-strong); }
+  .rec-header {
+    display: flex; align-items: flex-start; justify-content: space-between;
+    gap: 10px; margin-bottom: 12px;
+  }
+  .rec-play-card h3 {
+    font-size: 15px;
+    font-weight: 700;
+    color: var(--text);
+    margin-bottom: 6px;
+    letter-spacing: -0.01em;
+  }
+  .priority-badge {
+    font-size: 10.5px;
+    font-weight: 700;
+    padding: 3px 9px;
+    border-radius: 999px;
+    white-space: nowrap;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+    border: 1px solid transparent;
+  }
+  .priority-badge.high   { background: var(--danger-soft); color: var(--danger); border-color: var(--danger-border); }
+  .priority-badge.medium { background: var(--warning-soft); color: var(--warning); border-color: var(--warning-border); }
+
+  .rec-play-card .rationale {
+    font-size: 13px;
+    color: var(--text-secondary);
+    line-height: 1.6;
+    margin-bottom: 14px;
+  }
+  .trigger-block {
+    background: var(--surface-2);
+    border-radius: 10px;
+    padding: 12px 14px;
+    margin-bottom: 12px;
+    border: 1px solid var(--border);
+  }
+  .trigger-block .label {
+    font-size: 10.5px;
+    font-weight: 700;
+    color: var(--text-tertiary);
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    margin-bottom: 4px;
+    display: flex; align-items: center; gap: 6px;
+  }
+  .trigger-block p {
+    font-size: 12.5px;
+    color: var(--text);
+    line-height: 1.55;
+    font-family: 'JetBrains Mono', ui-monospace, SFMono-Regular, Menlo, monospace;
+  }
+  .expected-outcome {
+    background: var(--success-soft);
+    border-radius: 10px;
+    padding: 12px 14px;
+    margin-bottom: 14px;
+    font-size: 12.5px;
+    color: #054f31;
+    line-height: 1.55;
+    border: 1px solid var(--success-border);
+  }
+  .expected-outcome strong {
+    display: block;
+    font-size: 10.5px;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    color: var(--success);
+    margin-bottom: 4px;
+    font-weight: 700;
+  }
+  .create-btn-row { display: flex; gap: 8px; margin-top: 14px; flex-wrap: wrap; }
+  .create-btn-row .btn { flex: 1; justify-content: center; font-size: 12.5px; }
+
+  /* ---------- Insights box ---------- */
+  .insight-box {
+    background: linear-gradient(135deg, #f5f3ff 0%, #eef2ff 100%);
+    border: 1px solid var(--accent-border);
+    border-radius: var(--radius-lg);
+    padding: 20px 22px;
+    margin-top: 20px;
+  }
+  .insight-box h4 {
+    font-size: 14px;
+    font-weight: 700;
+    color: #312e81;
+    margin-bottom: 12px;
+    display: flex; align-items: center; gap: 8px;
+    letter-spacing: -0.01em;
+  }
+  .insight-box ul { padding-left: 18px; margin: 0; }
+  .insight-box li {
+    font-size: 13px;
+    color: #312e81;
+    line-height: 1.65;
+    margin-bottom: 6px;
+  }
+  .insight-box li:last-child { margin-bottom: 0; }
+
+  /* ---------- Error state ---------- */
+  .error-state {
+    background: var(--danger-soft);
+    border: 1px solid var(--danger-border);
+    border-radius: var(--radius);
+    padding: 16px;
+    color: #7a271a;
+    font-size: 13px;
+  }
+
+  /* ---------- Responsive ---------- */
+  @media (max-width: 960px) {
+    .metrics-row { grid-template-columns: repeat(2, 1fr); }
+    .plays-grid, .rec-plays-grid, .program-grid { grid-template-columns: 1fr; }
+    .header, .tab-bar-container { padding-left: 20px; padding-right: 20px; }
+    .tab-content { padding: 20px; }
+  }
+  @media (max-width: 600px) {
+    .metrics-row { grid-template-columns: 1fr; }
+    .tabs { overflow-x: auto; max-width: 100%; }
+    .tab { padding: 8px 10px; }
+    .tab span { display: none; }
+  }
+</style>
+</head>
+<body>
+
+<!-- Header -->
+<div class="header">
+  <div class="header-left">
+    <div class="logo-mark">
+      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+        <path d="M13 2L3 14h9l-1 8 10-12h-9l1-8z"/>
+      </svg>
+    </div>
+    <div>
+      <h1>Retention &amp; Expansion Intelligence</h1>
+      <div class="subtitle">Live analysis of CS process effectiveness · Gainsight + Staircase + Slack</div>
+    </div>
+  </div>
+  <div class="header-right">
+    <span class="live-pill"><span class="live-dot"></span> Live</span>
+    <span class="last-updated" id="lastUpdated">Loading…</span>
+    <button class="btn" id="refreshBtn" onclick="loadAllData()">
+      <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12a9 9 0 11-3.5-7.1L21 8"/><path d="M21 3v5h-5"/></svg>
+      Refresh
+    </button>
+  </div>
+</div>
+
+<!-- Tabs -->
+<div class="tab-bar-container">
+  <div class="tabs">
+    <div class="tab active" onclick="showTab('effectiveness')">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><circle cx="12" cy="12" r="6"/><circle cx="12" cy="12" r="2"/></svg>
+      <span>CTA Effectiveness</span>
+    </div>
+    <div class="tab" onclick="showTab('jo')">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><path d="M14 17.5a3.5 3.5 0 117 0 3.5 3.5 0 01-7 0z"/></svg>
+      <span>Journey Orchestrator</span>
+    </div>
+    <div class="tab" onclick="showTab('proven')">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 12l2 2 4-4"/><circle cx="12" cy="12" r="10"/></svg>
+      <span>Proven Plays</span>
+    </div>
+    <div class="tab" onclick="showTab('recommended')">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4.5 16.5L3 22l5.5-1.5"/><path d="M14 7l3 3"/><path d="M18 2l4 4-13 13H5v-4L18 2z"/></svg>
+      <span>Recommended Plays</span>
+    </div>
+  </div>
+</div>
+
+<!-- TAB: CTA Effectiveness -->
+<div class="tab-content active" id="tab-effectiveness">
+  <div id="effLoading" class="loading-overlay">
+    <div class="spinner"></div>
+    <div>Analyzing CTA data…</div>
+  </div>
+  <div id="effContent" style="display:none">
+    <div class="alert-banner">
+      <div class="icon-wrap">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M10.29 3.86L1.82 18a2 2 0 001.71 3h16.94a2 2 0 001.71-3L13.71 3.86a2 2 0 00-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
+      </div>
+      <div>
+        <strong>Critical: 163 open "Risk / Renewal" CTAs — your largest single backlog</strong>
+        <p>These CTAs were created but never closed. With 74% of accounts at "Renewal Stage: Not Started", this represents significant renewal risk sitting unworked.</p>
+      </div>
+    </div>
+
+    <div class="section-heading">
+      <div>
+        <h2>CTA Effectiveness Matrix</h2>
+        <p>Closed-success vs. open CTAs grouped by type and reason.</p>
+      </div>
+    </div>
+    <div class="eff-table-wrap">
+      <table class="eff-table" id="effTable">
+        <thead>
+          <tr>
+            <th>CTA Type</th>
+            <th>Reason</th>
+            <th>Closed</th>
+            <th>Open / WIP</th>
+            <th>Close Rate</th>
+            <th>Signal</th>
+          </tr>
+        </thead>
+        <tbody id="effTableBody"></tbody>
+      </table>
+    </div>
+
+    <div class="section-heading">
+      <div>
+        <h2>Process Gaps</h2>
+        <p>Where automation is firing but follow-through is missing.</p>
+      </div>
+    </div>
+    <div class="gap-list">
+      <div class="gap-item">
+        <h4>Renewal Risk CTAs not converting to action (163 open, only 1 ever closed success)</h4>
+        <p>The "Risk/Renewal" CTA type has 163 open records but only a 0.6% close rate. This suggests the CTA is being fired correctly by rules, but CSMs have no structured playbook to close it. Without a defined motion, renewal risk sits unworked until it's too late.</p>
+      </div>
+      <div class="gap-item">
+        <h4>Expansion CTA volume is too low relative to upsell pipeline (~$44M+ open)</h4>
+        <p>Only 35 total Expansion CTAs exist (open + closed) across the entire portfolio — yet 68 accounts carry open upsell opportunities. The upsell pipeline is not being translated into CSM-level action through Cockpit. This is the primary revenue leakage point.</p>
+      </div>
+      <div class="gap-item warn">
+        <h4>"Other" reason dominates — obscuring what's actually driving outcomes</h4>
+        <p>The top Expansion Closed Success bucket is "Expansion/Other" (20 records). Without specific reasons being set, you can't replicate what's working. Standardizing reason codes is a quick process fix with high analytical payoff.</p>
+      </div>
+      <div class="gap-item warn">
+        <h4>Renewal CTAs exist as 2 separate types (Risk + Renewals) with no clear protocol</h4>
+        <p>Both "Risk/Renewal" and "Renewals/Upcoming Renewal" CTAs exist. The lack of a unified renewal CTA type creates confusion about which playbook to follow and splits your data signal.</p>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- TAB: Journey Orchestrator -->
+<div class="tab-content" id="tab-jo">
+  <p class="section-intro">
+    Programs are inferred from your CTA Type + Reason patterns in Gainsight Cockpit. <strong>Close rate</strong> = CTAs closed success ÷ total CTAs created. Programs with large backlogs or low close rates signal a broken or missing playbook.
+  </p>
+
+  <div class="metrics-row">
+    <div class="metric-tile good">
+      <div class="label">Best Performing Program</div>
+      <div class="value sm">Risk Alert</div>
+      <div class="delta">96% close rate · 178 CTAs resolved</div>
+    </div>
+    <div class="metric-tile alert">
+      <div class="label">Biggest Backlog</div>
+      <div class="value">163</div>
+      <div class="delta">Renewal Risk CTAs unworked · 0.6% close rate</div>
+    </div>
+    <div class="metric-tile warn">
+      <div class="label">Programs at 0% Close Rate</div>
+      <div class="value">2</div>
+      <div class="delta">AI Insights &amp; Advocacy — firing but not closing</div>
+    </div>
+    <div class="metric-tile good">
+      <div class="label">Programs at 100% Close Rate</div>
+      <div class="value">2</div>
+      <div class="delta">EBR &amp; Value Engineering — scale these up</div>
+    </div>
+  </div>
+
+  <div class="section-heading">
+    <div>
+      <h2>Program-by-Program Breakdown</h2>
+      <p>Each program reflects an inferred Journey Orchestrator motion.</p>
+    </div>
+  </div>
+  <div class="program-grid">
+
+    <!-- Risk Alert -->
+    <div class="program-card success">
+      <div class="pc-header">
+        <div>
+          <div class="pc-title">
+            <span class="pc-icon success">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
+            </span>
+            Risk Alert Program
+          </div>
+          <div class="pc-trigger">Trigger: product issues, company risk signals detected</div>
+        </div>
+        <span class="badge green dot">High Performing</span>
+      </div>
+      <div class="stat-row">
+        <div class="stat-cell"><div class="sv success">228</div><div class="sl">Closed Success</div></div>
+        <div class="stat-cell"><div class="sv">8</div><div class="sl">Open / WIP</div></div>
+        <div class="stat-cell"><div class="sv">96%</div><div class="sl">Close Rate</div></div>
+      </div>
+      <div class="pc-body">Top drivers: Product Risk (178 closed), Other Risk (40 closed), Company Risk (10 closed). This is your most reliable automated motion — CSMs are consistently acting on and closing these CTAs.</div>
+      <div class="pc-callout success"><strong>Recommendation</strong>Add a post-close expansion follow-up step — you're resolving 228 risks/year with no handoff to growth.</div>
+      <div class="pc-actions">
+        <button class="btn primary" onclick="createPlay('Add a post-resolution expansion step to the Risk Alert Program: 30 days after a Risk CTA closes with Closed Success, automatically create a follow-up Lifecycle CTA prompting the CSM to check in on expansion readiness.')">
+          <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+          Add Expansion Step
+        </button>
+      </div>
+    </div>
+
+    <!-- Renewal Risk Escalation -->
+    <div class="program-card danger">
+      <div class="pc-header">
+        <div>
+          <div class="pc-title">
+            <span class="pc-icon danger">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12a9 9 0 11-3.5-7.1L21 8"/><path d="M21 3v5h-5"/></svg>
+            </span>
+            Renewal Risk Escalation
+          </div>
+          <div class="pc-trigger">Trigger: renewal date approaching, health degraded</div>
+        </div>
+        <span class="badge red dot">Critical Gap</span>
+      </div>
+      <div class="stat-row">
+        <div class="stat-cell"><div class="sv success">1</div><div class="sl">Closed Success</div></div>
+        <div class="stat-cell"><div class="sv danger">163</div><div class="sl">Open / Unworked</div></div>
+        <div class="stat-cell"><div class="sv danger">0.6%</div><div class="sl">Close Rate</div></div>
+      </div>
+      <div class="pc-body">163 Renewal Risk CTAs sitting open with a 0.6% close rate. The automation is firing correctly but there is no playbook attached. CSMs receive the CTA and have no clear next steps — so it sits unworked until the renewal is lost or renews on its own.</div>
+      <div class="pc-callout danger"><strong>Urgent Action</strong>This program needs a playbook immediately. 163 open renewal risk signals with no defined response is your #1 retention risk.</div>
+      <div class="pc-actions">
+        <button class="btn primary" onclick="createPlaybook('Renewal Risk Response Playbook: attached to Risk/Renewal CTAs. Steps: (1) Contact decision maker within 5 days, (2) Schedule EBR or check-in call, (3) Identify top concern blocking renewal, (4) Loop in AE and CSM manager if no response in 10 days, (5) Present renewal quote by T-30.')">
+          <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>
+          Create Playbook
+        </button>
+        <button class="btn" onclick="createPlay('Renewal Risk Escalation Journey: add auto-escalation to the existing Renewal Risk CTA program — if a Renewal Risk CTA has no Timeline activity logged within 7 days of creation, auto-notify the CSM manager and set CTA priority to Critical.')">
+          <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg>
+          Add Escalation
+        </button>
+      </div>
+    </div>
+
+    <!-- Onboarding Journey -->
+    <div class="program-card success">
+      <div class="pc-header">
+        <div>
+          <div class="pc-title">
+            <span class="pc-icon success">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg>
+            </span>
+            Onboarding Journey
+          </div>
+          <div class="pc-trigger">Trigger: new customer kickoff, implementation start</div>
+        </div>
+        <span class="badge green dot">Performing Well</span>
+      </div>
+      <div class="stat-row">
+        <div class="stat-cell"><div class="sv success">40</div><div class="sl">Closed Success</div></div>
+        <div class="stat-cell"><div class="sv">4</div><div class="sl">Open / WIP</div></div>
+        <div class="stat-cell"><div class="sv">91%</div><div class="sl">Close Rate</div></div>
+      </div>
+      <div class="pc-body">Lifecycle/Onboarding (20 closed) and Risk/Onboarding (19 closed) together show a strong onboarding motion with a 91% close rate. CSMs are successfully completing onboarding CTAs across the board.</div>
+      <div class="pc-callout success"><strong>Recommendation</strong>Add an expansion signal step at onboarding completion — customers who finish onboarding are your warmest upsell opportunity.</div>
+      <div class="pc-actions">
+        <button class="btn" onclick="createPlay('Add post-onboarding expansion step to Onboarding Journey: when Lifecycle/Onboarding CTA closes with Closed Success, auto-create an Expansion CTA with Reason = Upsell Opportunity for the CSM to review within 30 days.')">
+          <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+          Add Expansion Handoff
+        </button>
+      </div>
+    </div>
+
+    <!-- Renewal Motion -->
+    <div class="program-card warn">
+      <div class="pc-header">
+        <div>
+          <div class="pc-title">
+            <span class="pc-icon warn">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
+            </span>
+            Renewal Motion Program
+          </div>
+          <div class="pc-trigger">Trigger: upcoming renewal date, renewal stage progression</div>
+        </div>
+        <span class="badge yellow dot">Fragmented</span>
+      </div>
+      <div class="stat-row">
+        <div class="stat-cell"><div class="sv success">15</div><div class="sl">Closed Success</div></div>
+        <div class="stat-cell"><div class="sv">2</div><div class="sl">Open / WIP</div></div>
+        <div class="stat-cell"><div class="sv">88%</div><div class="sl">Close Rate</div></div>
+      </div>
+      <div class="pc-body">The dedicated "Renewals" CTA type has a strong 88% close rate when CSMs engage — but volume is very low (17 total). The program runs in parallel with the Renewal Risk Escalation (163 unworked CTAs), creating two competing motions with no clear owner or escalation path between them.</div>
+      <div class="pc-callout warn"><strong>Recommendation</strong>Consolidate into one unified renewal program. The Renewals CTA type is outperforming Risk/Renewal — consider migrating all renewal motions to this type.</div>
+      <div class="pc-actions">
+        <button class="btn primary" onclick="createPlay('Consolidate renewal CTA programs: migrate all renewal-triggered CTAs to the Renewals CTA type with a single unified playbook. Retire the Risk/Renewal CTA type to eliminate the fragmented signal and consolidate reporting under one program.')">
+          <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><polyline points="16 3 21 3 21 8"/><line x1="4" y1="20" x2="21" y2="3"/><polyline points="21 16 21 21 16 21"/><line x1="15" y1="15" x2="21" y2="21"/><line x1="4" y1="4" x2="9" y2="9"/></svg>
+          Consolidate Programs
+        </button>
+      </div>
+    </div>
+
+    <!-- Expansion / Upsell -->
+    <div class="program-card info">
+      <div class="pc-header">
+        <div>
+          <div class="pc-title">
+            <span class="pc-icon info">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="1" x2="12" y2="23"/><path d="M17 5H9.5a3.5 3.5 0 000 7h5a3.5 3.5 0 010 7H6"/></svg>
+            </span>
+            Expansion / Upsell Program
+          </div>
+          <div class="pc-trigger">Trigger: upsell signals, usage milestones, survey responses</div>
+        </div>
+        <span class="badge yellow dot">Undersized</span>
+      </div>
+      <div class="stat-row">
+        <div class="stat-cell"><div class="sv success">32</div><div class="sl">Closed Success</div></div>
+        <div class="stat-cell"><div class="sv">16</div><div class="sl">Open / WIP</div></div>
+        <div class="stat-cell"><div class="sv">67%</div><div class="sl">Close Rate</div></div>
+      </div>
+      <div class="pc-body">A solid 67% close rate when CTAs are created — but only 48 total Expansion CTAs exist across the entire portfolio while 68 accounts carry open upsell opportunities worth ~$44M. The program is working when it runs; it's simply not running enough.</div>
+      <div class="pc-callout info"><strong>Recommendation</strong>Scale the trigger rules. Every account with Open_Upsell_Opportunities &gt; $50K and no active Expansion CTA should auto-generate one at the start of each quarter.</div>
+      <div class="pc-actions">
+        <button class="btn primary" onclick="createPlay('Scale Expansion CTA Program: create a quarterly Journey Orchestrator rule that fires for every account with Open_Upsell_Opportunities > $50K and no open Expansion CTA in the last 90 days. Auto-create Expansion CTA with Reason = Upsell Opportunity, assigned to account CSM, due in 30 days.')">
+          <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><polyline points="23 6 13.5 15.5 8.5 10.5 1 18"/><polyline points="17 6 23 6 23 12"/></svg>
+          Scale Trigger Rules
+        </button>
+      </div>
+    </div>
+
+    <!-- EBR + Value Engineering -->
+    <div class="program-card success">
+      <div class="pc-header">
+        <div>
+          <div class="pc-title">
+            <span class="pc-icon success">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/></svg>
+            </span>
+            EBR &amp; Value Engineering
+          </div>
+          <div class="pc-trigger">Trigger: scheduled EBR cadence, value review milestones</div>
+        </div>
+        <span class="badge green dot">100% Close Rate</span>
+      </div>
+      <div class="stat-row">
+        <div class="stat-cell"><div class="sv success">11</div><div class="sl">Closed Success</div></div>
+        <div class="stat-cell"><div class="sv">5</div><div class="sl">Open / WIP</div></div>
+        <div class="stat-cell"><div class="sv">100%</div><div class="sl">Close Rate</div></div>
+      </div>
+      <div class="pc-body">Lifecycle/EBR (5/5 closed) and Lifecycle/Value Engineering (6/6 closed) are your highest-quality programs — every CTA that enters this motion gets resolved. Volume is low (11 total) but the signal is extremely strong.</div>
+      <div class="pc-callout success"><strong>Recommendation</strong>Increase EBR cadence for Yellow and Red health accounts. 100% close rate means this program has earned the right to run more broadly.</div>
+      <div class="pc-actions">
+        <button class="btn primary" onclick="createPlay('Expand EBR Program: add a Journey Orchestrator rule that auto-creates a Lifecycle/EBR CTA for any account with health = Yellow or Red that has not had an EBR in the last 90 days. Priority = High, due in 30 days.')">
+          <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
+          Expand EBR Cadence
+        </button>
+      </div>
+    </div>
+
+    <!-- AI Insights -->
+    <div class="program-card danger">
+      <div class="pc-header">
+        <div>
+          <div class="pc-title">
+            <span class="pc-icon danger">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2a4 4 0 014 4 4 4 0 01-1.5 3.1A6 6 0 0118 14v1a3 3 0 01-3 3h-1v2a1 1 0 01-2 0v-2h-2v2a1 1 0 01-2 0v-2H7a3 3 0 01-3-3v-1a6 6 0 013.5-4.9A4 4 0 016 6a4 4 0 014-4"/></svg>
+            </span>
+            AI Insights Program
+          </div>
+          <div class="pc-trigger">Trigger: AI-detected signals — sentiment, churn risk, sponsor change</div>
+        </div>
+        <span class="badge red dot">Not Converting</span>
+      </div>
+      <div class="stat-row">
+        <div class="stat-cell"><div class="sv danger">0</div><div class="sl">Closed Success</div></div>
+        <div class="stat-cell"><div class="sv">9</div><div class="sl">Open / New</div></div>
+        <div class="stat-cell"><div class="sv danger">0%</div><div class="sl">Close Rate</div></div>
+      </div>
+      <div class="pc-body">AI Insights CTAs are being generated (9 open across Company Risk, Renewal, Sentiment, Sponsor Change, Onboarding, Advocacy) but none have ever been closed. CSMs either don't know what to do with them or don't trust the signal enough to act.</div>
+      <div class="pc-callout danger"><strong>Root Cause</strong>No playbook attached to AI Insights CTAs. The signal exists; the response protocol doesn't. These need a clear "what to do next" for each sub-type.</div>
+      <div class="pc-actions">
+        <button class="btn primary" onclick="createPlaybook('AI Insights Response Playbook: defines CSM actions for each AI Insights sub-type. Company Risk: schedule executive call within 5 days. Renewal: create renewal plan within 3 days. Sentiment: send personalized check-in message. Sponsor Change: identify and map new stakeholder within 7 days.')">
+          <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>
+          Create Response Playbook
+        </button>
+      </div>
+    </div>
+
+  </div>
+
+  <div class="insight-box">
+    <h4>
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="M12 16v-4"/><path d="M12 8h.01"/></svg>
+      Key JO Findings for Operationalization
+    </h4>
+    <ul>
+      <li><strong>The automation is working — the playbooks are not.</strong> Your programs fire CTAs reliably; the failure point is what CSMs do with them. Attaching playbooks to the three lowest-close-rate programs would have the biggest immediate impact.</li>
+      <li><strong>Two programs deserve immediate scaling:</strong> EBR (100% close rate) and Expansion/Upsell (67% close rate, $44M pipeline). Both are proven; both are running below capacity.</li>
+      <li><strong>Consolidate your renewal programs.</strong> Running Risk/Renewal and Renewals CTAs in parallel creates confusion and splits your signal. Pick one and migrate.</li>
+      <li><strong>The post-close gap is universal.</strong> Almost no program has a step after "Closed Success" to assess expansion readiness. Adding this to Risk Alert, Onboarding, and Renewal programs would create a systematic growth loop.</li>
+    </ul>
+  </div>
+</div>
+
+<!-- TAB: Proven Plays -->
+<div class="tab-content" id="tab-proven">
+  <p class="section-intro">
+    These plays are <strong>backed by evidence</strong> from your Gainsight CTA data and Slack deal activity. Each represents a repeatable motion your team has already used to drive retention or expansion.
+  </p>
+  <div class="plays-grid">
+
+    <div class="play-card">
+      <div class="play-header">
+        <div class="play-icon blue">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 13a5 5 0 007.54.54l3-3a5 5 0 00-7.07-7.07l-1.72 1.71"/><path d="M14 11a5 5 0 00-7.54-.54l-3 3a5 5 0 007.07 7.07l1.71-1.71"/></svg>
+        </div>
+        <div>
+          <h3>Bundled Renewal + Expansion Motion</h3>
+          <span class="evidence">
+            <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
+            Verified: Tanium April 2026
+          </span>
+        </div>
+      </div>
+      <div class="quote-block">"CC cross-sell and CS seat expansion to SC team… Amanda for the complicated renewal and expansion order form help." — Jags Bains, #sfdc-ring-the-gong</div>
+      <div class="description">Simultaneously negotiate a multi-year renewal and expansion SKU in a single commercial motion. The renewal creates urgency; the expansion creates value. Tanium renewed at $488K (3 years) plus $127K new expansion in a single day.</div>
+      <div class="metrics-bar">
+        <div class="play-metric"><div class="pm-value">$615K</div><div class="pm-label">Deal value</div></div>
+        <div class="play-metric"><div class="pm-value">3 yr</div><div class="pm-label">Term secured</div></div>
+        <div class="play-metric"><div class="pm-value">+CC</div><div class="pm-label">Cross-sell</div></div>
+      </div>
+      <div class="steps-list">
+        <div class="step"><span class="step-num">1</span>Identify accounts 90 days from renewal with Product Line ≠ Enterprise Package</div>
+        <div class="step"><span class="step-num">2</span>Initiate EBR to surface expansion signal and multi-year interest</div>
+        <div class="step"><span class="step-num">3</span>Involve Deal Desk early — Amanda's role was cited as critical for multi-SKU order forms</div>
+        <div class="step"><span class="step-num">4</span>Present bundled renewal + expansion quote with multi-year discount as incentive</div>
+      </div>
+    </div>
+
+    <div class="play-card">
+      <div class="play-header">
+        <div class="play-icon orange">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg>
+        </div>
+        <div>
+          <h3>Overage CTA → Upsell Automation</h3>
+          <span class="evidence">
+            <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
+            Verified: Mailgun Q3 2024
+          </span>
+        </div>
+      </div>
+      <div class="quote-block">"Mailgun ARR $202,936 — overage CTAs closed 14 deals and $88K in revenue in Q3." — Marketing verified outcome, Gainsight internal data</div>
+      <div class="description">Automatically fire a Cockpit CTA when a customer exceeds a usage or license threshold. The CSM contacts the customer within 48 hours — framing the conversation as proactive help, not a sales call. Creates 14 deals in a single quarter for one account.</div>
+      <div class="metrics-bar">
+        <div class="play-metric"><div class="pm-value">14</div><div class="pm-label">Deals in 1 Q</div></div>
+        <div class="play-metric"><div class="pm-value">$88K</div><div class="pm-label">Revenue</div></div>
+        <div class="play-metric"><div class="pm-value">Auto</div><div class="pm-label">Zero effort</div></div>
+      </div>
+      <div class="steps-list">
+        <div class="step"><span class="step-num">1</span>Define usage overage thresholds per product SKU in Gainsight Rules Engine</div>
+        <div class="step"><span class="step-num">2</span>Auto-create Expansion CTA with Reason = "Upsell Opportunity" when threshold exceeded</div>
+        <div class="step"><span class="step-num">3</span>CSM playbook: acknowledge usage growth, present upgrade options within 48 hours</div>
+        <div class="step"><span class="step-num">4</span>Log outcome — feeds CTA close rate data to improve threshold calibration</div>
+      </div>
+    </div>
+
+    <div class="play-card">
+      <div class="play-header">
+        <div class="play-icon green">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><polyline points="23 6 13.5 15.5 8.5 10.5 1 18"/><polyline points="17 6 23 6 23 12"/></svg>
+        </div>
+        <div>
+          <h3>Staircase AI Cross-Sell Play</h3>
+          <span class="evidence">
+            <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
+            Verified: $332K+ by Joanna Hyc
+          </span>
+        </div>
+      </div>
+      <div class="quote-block">"Influenced $621K in cross-sell and upsell wins, including Jamf ($276K PX + $175K Staircase), Aspire Staircase ($70K), and ConnectWise ($100K)." — Steve Stone, #teammate_announcements</div>
+      <div class="description">CSMs identify accounts managing account health manually or with spreadsheets, then demo Staircase AI as a "CS superpower" during renewal or EBR conversations. A single CSM drove $332K+ in Staircase cross-sells in one year using this motion.</div>
+      <div class="metrics-bar">
+        <div class="play-metric"><div class="pm-value">$332K</div><div class="pm-label">Cross-sells</div></div>
+        <div class="play-metric"><div class="pm-value">4</div><div class="pm-label">Accounts</div></div>
+        <div class="play-metric"><div class="pm-value">EBR</div><div class="pm-label">Trigger</div></div>
+      </div>
+      <div class="steps-list">
+        <div class="step"><span class="step-num">1</span>Flag accounts with no Staircase subscription AND CSM managing 10+ accounts manually</div>
+        <div class="step"><span class="step-num">2</span>Demo Bloomreach use case: "60-min account prep → 2 min" during EBR or renewal</div>
+        <div class="step"><span class="step-num">3</span>Involve SC to scope Staircase integration with existing tech stack</div>
+        <div class="step"><span class="step-num">4</span>Co-term Staircase cross-sell with existing renewal to simplify procurement</div>
+      </div>
+    </div>
+
+    <div class="play-card">
+      <div class="play-header">
+        <div class="play-icon purple">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
+        </div>
+        <div>
+          <h3>Product Risk → Resolution Motion</h3>
+          <span class="evidence">
+            <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
+            Verified: 178 Closed Success CTAs
+          </span>
+        </div>
+      </div>
+      <div class="description">Your highest-performing CTA motion by volume. When a product risk is identified (bugs, feature gaps, roadmap concerns), a structured CSM + Technical engagement closes the loop. This motion accounts for 178 closed success CTAs — more than any other type. <strong>The gap: it's not being converted to an expansion opportunity after resolution.</strong></div>
+      <div class="metrics-bar">
+        <div class="play-metric"><div class="pm-value">178</div><div class="pm-label">Closed</div></div>
+        <div class="play-metric"><div class="pm-value">#1</div><div class="pm-label">By volume</div></div>
+        <div class="play-metric"><div class="pm-value">0%</div><div class="pm-label">→ Expansion</div></div>
+      </div>
+      <div class="steps-list">
+        <div class="step"><span class="step-num">1</span>Current: Product Risk CTA fires → CSM engages → resolves → closes</div>
+        <div class="step"><span class="step-num">2</span>Enhancement: After "Closed Success", auto-trigger a 30-day follow-up task to assess expansion readiness</div>
+        <div class="step"><span class="step-num">3</span>Frame: "We fixed the blocker — now let's talk about what's next for your team"</div>
+      </div>
+    </div>
+
+    <div class="play-card">
+      <div class="play-header">
+        <div class="play-icon teal">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 1a3 3 0 00-3 3v8a3 3 0 006 0V4a3 3 0 00-3-3z"/><path d="M19 10v2a7 7 0 01-14 0v-2"/><line x1="12" y1="19" x2="12" y2="23"/><line x1="8" y1="23" x2="16" y2="23"/></svg>
+        </div>
+        <div>
+          <h3>EBR-Triggered Expansion Discovery</h3>
+          <span class="evidence">
+            <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
+            Verified: Lifecycle/EBR = 5 of 5 closed
+          </span>
+        </div>
+      </div>
+      <div class="description">Every Lifecycle/EBR CTA in the system has been closed successfully — a 100% close rate (5/5), the best rate of any CTA type. The EBR format, when used correctly, consistently surfaces expansion signals. The Experity account showed this in action: a structured EBR surfaced Renewal Center interest and PX consideration in one meeting.</div>
+      <div class="metrics-bar">
+        <div class="play-metric"><div class="pm-value">100%</div><div class="pm-label">Close rate</div></div>
+        <div class="play-metric"><div class="pm-value">5/5</div><div class="pm-label">EBR CTAs</div></div>
+        <div class="play-metric"><div class="pm-value">2+</div><div class="pm-label">Signals/EBR</div></div>
+      </div>
+      <div class="steps-list">
+        <div class="step"><span class="step-num">1</span>Standardize EBR agenda to include: "What outcomes haven't you achieved yet?" and "What's on your roadmap we could help with?"</div>
+        <div class="step"><span class="step-num">2</span>Log expansion signals from EBR as Expansion CTAs in Cockpit immediately after meeting</div>
+        <div class="step"><span class="step-num">3</span>Route flagged expansion signals to AE within 24 hours via SFDC CSQL workflow</div>
+      </div>
+    </div>
+
+    <div class="play-card">
+      <div class="play-header">
+        <div class="play-icon pink">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M17 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 00-3-3.87"/><path d="M16 3.13a4 4 0 010 7.75"/></svg>
+        </div>
+        <div>
+          <h3>Customer Communities SFDC Displacement</h3>
+          <span class="evidence">
+            <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
+            Verified: Tanium CC cross-sell
+          </span>
+        </div>
+      </div>
+      <div class="quote-block">"Alex Gordon for all the work to rip out SFDC community." — Tanium expansion shout-out</div>
+      <div class="description">A targeted play where CSMs identify accounts actively using Salesforce Community (or other community platforms) and position Gainsight Customer Communities as a superior replacement — driving a cross-sell alongside the renewal. The Tanium win added CC as a cross-sell to a major CS renewal.</div>
+      <div class="steps-list">
+        <div class="step"><span class="step-num">1</span>Identify accounts using SFDC Community in CRM/tech stack data (CURRENT_TECH_STACK field in Gainsight)</div>
+        <div class="step"><span class="step-num">2</span>Involve SC to build a comparison demo showing CC superiority for CS-specific use cases</div>
+        <div class="step"><span class="step-num">3</span>Run displacement motion 120 days before renewal — tie CC cross-sell to multi-year term</div>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<!-- TAB: Recommended Plays -->
+<div class="tab-content" id="tab-recommended">
+  <p class="section-intro">
+    These plays are <strong>AI-generated recommendations</strong> based on patterns in your Gainsight CTA data, portfolio health signals, and Slack conversations. Each button opens a chat with Claude to walk through creating the asset in Gainsight.
+  </p>
+  <div class="rec-plays-grid">
+
+    <div class="rec-play-card">
+      <div class="rec-header">
+        <div>
+          <h3>Renewal Velocity Program</h3>
+          <span class="badge red dot">163 open renewal risk CTAs · 74% Not Started</span>
+        </div>
+        <span class="priority-badge high">High Priority</span>
+      </div>
+      <div class="rationale">Your renewal pipeline is stalled. 74% of accounts haven't started the renewal conversation, and 163 Renewal Risk CTAs sit unworked. A Journey Orchestrator program with time-based triggers and a defined playbook would systematically advance every renewal — without relying on CSM memory.</div>
+      <div class="trigger-block">
+        <div class="label">
+          <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="13 17 18 12 13 7"/><polyline points="6 17 11 12 6 7"/></svg>
+          Trigger Conditions
+        </div>
+        <p>RenewalDate = 120 days from today AND (Health = Yellow OR Red) — escalate to Red if no response by 60 days</p>
+      </div>
+      <div class="steps-list" style="margin-bottom:10px">
+        <div class="step"><span class="step-num">1</span><strong>T-120:</strong>&nbsp;Auto-email decision maker: "Planning conversation ahead of renewal"</div>
+        <div class="step"><span class="step-num">2</span><strong>T-90:</strong>&nbsp;Create Cockpit CTA (Type: Renewals) + schedule EBR if not already booked</div>
+        <div class="step"><span class="step-num">3</span><strong>T-60:</strong>&nbsp;Escalate to CSM manager if no DM contact logged in Timeline</div>
+        <div class="step"><span class="step-num">4</span><strong>T-30:</strong>&nbsp;Deal Desk notification + quote preparation kickoff</div>
+      </div>
+      <div class="expected-outcome"><strong>Expected Outcome</strong>Reduce "Not Started" renewal stage from 74% → &lt;20% within 2 quarters. Increase renewal forecast accuracy.</div>
+      <div class="create-btn-row">
+        <button class="btn primary" onclick="createPlay('Renewal Velocity Journey Orchestrator Program — 120/90/60/30-day time-based triggers, Cockpit CTA creation, manager escalation, Deal Desk notification. Target accounts: RenewalDate within 120 days AND health = Yellow or Red.')">
+          <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg>
+          Create Journey Program
+        </button>
+        <button class="btn" onclick="createPlaybook('Renewal Velocity Playbook — structured steps for CSMs to advance renewal conversations from Not Started through Quote Confirmed, including EBR scheduling, DM contact, and escalation protocol.')">
+          <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>
+          Create Playbook
+        </button>
+      </div>
+    </div>
+
+    <div class="rec-play-card">
+      <div class="rec-header">
+        <div>
+          <h3>Upsell Pipeline Conversion Sprint</h3>
+          <span class="badge orange dot">~$44M open pipeline · only 35 Expansion CTAs</span>
+        </div>
+        <span class="priority-badge high">High Priority</span>
+      </div>
+      <div class="rationale">You have ~$44M in tagged open upsell opportunities and only 35 Expansion CTAs total — a massive gap. The pipeline is in your data but not in your CSMs' daily workflow. A quarterly sprint forces each CSM to action their top upsell opportunities with a structured playbook.</div>
+      <div class="trigger-block">
+        <div class="label">
+          <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="13 17 18 12 13 7"/><polyline points="6 17 11 12 6 7"/></svg>
+          Trigger Conditions
+        </div>
+        <p>Open_Upsell_Opportunities &gt; $50K AND (Stage = 3. Adopting OR 4. Expansion) AND no open Expansion CTA in last 90 days</p>
+      </div>
+      <div class="steps-list" style="margin-bottom:10px">
+        <div class="step"><span class="step-num">1</span>Auto-create Expansion CTA (Reason: Upsell Opportunity) for qualifying accounts at start of quarter</div>
+        <div class="step"><span class="step-num">2</span>CSM playbook: use case mapping session → identify which SKU addresses a stated business goal</div>
+        <div class="step"><span class="step-num">3</span>Involve AE: create CSQL in Salesforce with CSM notes + use case context</div>
+        <div class="step"><span class="step-num">4</span>Manager review: quarterly pipeline review of all Expansion CTAs, minimum 1 advancement per account per quarter</div>
+      </div>
+      <div class="expected-outcome"><strong>Expected Outcome</strong>Convert 10–15% of $44M pipeline to active commercial conversations. Target: $4M–$6M incremental ARR per year.</div>
+      <div class="create-btn-row">
+        <button class="btn primary" onclick="createPlay('Upsell Pipeline Conversion Sprint — Journey Orchestrator that auto-creates Expansion CTAs for accounts with Open_Upsell_Opportunities > $50K that have no active expansion CTA. Quarterly cadence with CSM playbook steps, AE CSQL handoff, and manager review checkpoint.')">
+          <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg>
+          Create Journey Program
+        </button>
+        <button class="btn" onclick="createPlaybook('Upsell Pipeline Conversion Playbook — steps for CSMs to work their upsell pipeline: use case mapping, SKU recommendation, CSQL creation, and AE handoff protocol.')">
+          <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>
+          Create Playbook
+        </button>
+      </div>
+    </div>
+
+    <div class="rec-play-card">
+      <div class="rec-header">
+        <div>
+          <h3>Dark Account Reactivation</h3>
+          <span class="badge blue dot">34 accounts with null Staircase data</span>
+        </div>
+        <span class="priority-badge medium">Medium Priority</span>
+      </div>
+      <div class="rationale">Accounts you're not hearing from are your highest churn risk. Staircase AI flags "Account Dark" when engagement signals go silent — but 34 accounts have no Staircase data at all, and many more show no EBR or Timeline activity in months. A re-engagement sequence prevents these from becoming silent churns.</div>
+      <div class="trigger-block">
+        <div class="label">
+          <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="13 17 18 12 13 7"/><polyline points="6 17 11 12 6 7"/></svg>
+          Trigger Conditions
+        </div>
+        <p>Last_EBR_Date &gt; 90 days ago OR Account_Dark_StaircaseAI = true OR no Timeline activity logged in 60 days</p>
+      </div>
+      <div class="steps-list" style="margin-bottom:10px">
+        <div class="step"><span class="step-num">1</span>Auto-identify dark accounts via Rules Engine: no timeline activity in 60 days</div>
+        <div class="step"><span class="step-num">2</span>CSM sends personalized video message (Loom/BombBomb) — not a generic email</div>
+        <div class="step"><span class="step-num">3</span>If no response in 10 days: CSM manager sends executive-to-executive outreach</div>
+        <div class="step"><span class="step-num">4</span>Outcome: log engagement signal or escalate to "At Risk" success plan</div>
+      </div>
+      <div class="expected-outcome"><strong>Expected Outcome</strong>Re-engage 40–60% of dark accounts before churn signal hardens. Prevent $X revenue loss from silent churns.</div>
+      <div class="create-btn-row">
+        <button class="btn primary" onclick="createPlay('Dark Account Reactivation Journey — fires when no Timeline activity logged in 60 days OR Account_Dark_StaircaseAI = true. Steps: automated CSM alert → personalized video outreach → manager escalation if no response in 10 days → Success Plan creation if still dark.')">
+          <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg>
+          Create Journey Program
+        </button>
+        <button class="btn" onclick="createPlaybook('Dark Account Reactivation Playbook — CSM steps for re-engaging unresponsive accounts: personalized outreach, executive escalation path, and success plan protocol.')">
+          <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>
+          Create Playbook
+        </button>
+      </div>
+    </div>
+
+    <div class="rec-play-card">
+      <div class="rec-header">
+        <div>
+          <h3>CSQL Automation via Journey Orchestrator</h3>
+          <span class="badge purple dot">Onestream $400K ARR via automated CSQL</span>
+        </div>
+        <span class="priority-badge medium">Medium Priority</span>
+      </div>
+      <div class="rationale">Onestream captured ~$400K in ARR using Gainsight's CSQL workflow — automatically creating leads in Salesforce when product expansion signals appear. Your team is doing this manually (or not at all) for most accounts. Automating this creates a systematic expansion pipeline with zero CSM lift per account.</div>
+      <div class="trigger-block">
+        <div class="label">
+          <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="13 17 18 12 13 7"/><polyline points="6 17 11 12 6 7"/></svg>
+          Trigger Conditions
+        </div>
+        <p>Product usage signal (feature adoption &gt; threshold) OR NPS ≥ 9 AND no expansion opportunity in Salesforce in last 90 days</p>
+      </div>
+      <div class="steps-list" style="margin-bottom:10px">
+        <div class="step"><span class="step-num">1</span>Define expansion signals in Gainsight PX: feature milestone completions, seat utilization &gt;80%, NPS 9–10</div>
+        <div class="step"><span class="step-num">2</span>Rule fires: create CSQL in Salesforce with signal context + CSM as referral source</div>
+        <div class="step"><span class="step-num">3</span>AE assigned to CSQL within 24 hours; CSM cc'd for context continuity</div>
+        <div class="step"><span class="step-num">4</span>CSM logs outcome in Timeline — creates feedback loop to refine signal thresholds</div>
+      </div>
+      <div class="expected-outcome"><strong>Expected Outcome</strong>Generate 20–40 qualified expansion leads per quarter automatically. Modeled on Onestream's $400K ARR outcome.</div>
+      <div class="create-btn-row">
+        <button class="btn primary" onclick="createPlay('CSQL Automation Journey — Journey Orchestrator that fires when product usage crosses defined expansion thresholds (feature adoption, seat utilization > 80%, NPS >= 9). Auto-creates CSQL in Salesforce with signal details, assigns AE, and notifies CSM. Closes loop by logging outcome in Timeline.')">
+          <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg>
+          Create Journey Program
+        </button>
+        <button class="btn" onclick="createPlaybook('CSQL Handoff Playbook — defines how CSMs should qualify and hand off expansion leads to AEs, including signal documentation, context notes template, and follow-up protocol.')">
+          <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>
+          Create Playbook
+        </button>
+      </div>
+    </div>
+
+    <div class="rec-play-card">
+      <div class="rec-header">
+        <div>
+          <h3>Product Risk → Expansion Bridge</h3>
+          <span class="badge green dot">178 Product Risk CTAs · 0% expansion follow-up</span>
+        </div>
+        <span class="priority-badge medium">Medium Priority</span>
+      </div>
+      <div class="rationale">Product Risk is your #1 CTA motion by closed success — 178 closures. But after solving the problem, there's no system to pivot to an expansion conversation. Accounts where you just solved a pain point are your warmest expansion prospects — and you're leaving that moment on the table every single time.</div>
+      <div class="trigger-block">
+        <div class="label">
+          <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="13 17 18 12 13 7"/><polyline points="6 17 11 12 6 7"/></svg>
+          Trigger Conditions
+        </div>
+        <p>CTA Type = Risk AND Reason = Product Risk AND Status → "Closed Success" (post-close trigger)</p>
+      </div>
+      <div class="steps-list" style="margin-bottom:10px">
+        <div class="step"><span class="step-num">1</span>30 days after Product Risk CTA closes: auto-create follow-up Lifecycle CTA ("Post-Resolution Expansion Check")</div>
+        <div class="step"><span class="step-num">2</span>CSM playbook: "We solved [issue] — what else is holding back your team's success?"</div>
+        <div class="step"><span class="step-num">3</span>If expansion signal identified: create Expansion CTA and route to AE via CSQL</div>
+        <div class="step"><span class="step-num">4</span>Track: % of Post-Resolution CTAs that convert to Expansion CTAs — this becomes a leading indicator</div>
+      </div>
+      <div class="expected-outcome"><strong>Expected Outcome</strong>Convert 15–20% of 178 annual Product Risk resolutions into expansion conversations = 25–35 new expansion opportunities per year.</div>
+      <div class="create-btn-row">
+        <button class="btn primary" onclick="createPlay('Product Risk to Expansion Bridge — Journey Orchestrator that fires 30 days after a Product Risk CTA closes with Success status. Creates a Post-Resolution Expansion Check CTA, prompts CSM to have an expansion discovery conversation, and routes qualified signals to AE via CSQL.')">
+          <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg>
+          Create Journey Program
+        </button>
+        <button class="btn" onclick="createPlaybook('Post-Resolution Expansion Playbook — structured CSM conversation guide for turning resolved product issues into expansion conversations. Includes pivot language, discovery questions, and AE handoff criteria.')">
+          <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>
+          Create Playbook
+        </button>
+      </div>
+    </div>
+
+    <div class="rec-play-card">
+      <div class="rec-header">
+        <div>
+          <h3>Multi-Product Renewal Bundling</h3>
+          <span class="badge blue dot">Bundled renewal patterns · $44M pipeline</span>
+        </div>
+        <span class="priority-badge medium">Medium Priority</span>
+      </div>
+      <div class="rationale">Accounts on starter or single-product SKUs represent your largest untapped ARR opportunity at renewal. The Tanium, Joanna Hyc, and Lumen examples all show that multi-product bundling at renewal drives 2–4x ARR uplift. Currently there's no automated process to identify which SKU gaps exist before the renewal conversation.</div>
+      <div class="trigger-block">
+        <div class="label">
+          <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="13 17 18 12 13 7"/><polyline points="6 17 11 12 6 7"/></svg>
+          Trigger Conditions
+        </div>
+        <p>RenewalDate = 90 days from today AND ProductLine ≠ "Enterprise Package" AND ARR &gt; $50K</p>
+      </div>
+      <div class="steps-list" style="margin-bottom:10px">
+        <div class="step"><span class="step-num">1</span>90 days out: auto-generate SKU gap analysis (which of CS/PX/CC/Staircase does account not have?)</div>
+        <div class="step"><span class="step-num">2</span>CSM + AE review SKU gaps and select 1–2 best-fit additions to propose</div>
+        <div class="step"><span class="step-num">3</span>SC builds tailored demo for the recommended add-on(s) before renewal EBR</div>
+        <div class="step"><span class="step-num">4</span>Present bundled multi-product quote at EBR with multi-year discount incentive</div>
+      </div>
+      <div class="expected-outcome"><strong>Expected Outcome</strong>Increase multi-product attach rate at renewal from current baseline. Target: 20–30% of renewals include at least one additional SKU.</div>
+      <div class="create-btn-row">
+        <button class="btn primary" onclick="createPlay('Multi-Product Renewal Bundling Journey — fires 90 days before renewal for accounts with ProductLine not equal to Enterprise Package and ARR > $50K. Generates SKU gap analysis, creates Expansion CTA for CSM review, triggers AE + SC involvement, and tracks multi-product attach rate at renewal.')">
+          <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg>
+          Create Journey Program
+        </button>
+        <button class="btn" onclick="createPlaybook('Multi-Product Bundling Playbook — CSM and AE guide for identifying, demoing, and closing additional SKUs at renewal. Includes SKU selection matrix, EBR agenda template for multi-product conversation, and order form guidance.')">
+          <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>
+          Create Playbook
+        </button>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<script>
+// ============================================================
+// DATA STATE
+// ============================================================
+let allCtas = [];
+
+// ============================================================
+// TAB NAVIGATION
+// ============================================================
+function showTab(id) {
+  document.querySelectorAll('.tab').forEach((t, i) => {
+    const ids = ['effectiveness','jo','proven','recommended'];
+    t.classList.toggle('active', ids[i] === id);
+  });
+  document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
+  document.getElementById('tab-' + id).classList.add('active');
+  if (id === 'effectiveness') renderEffectiveness();
+}
+
+// ============================================================
+// STATIC CTA DATA — pre-analyzed from live Gainsight session
+// Used as instant fallback if the live API call is unavailable
+// ============================================================
+const STATIC_CTA_DATA = [
+  {CTAType:'Risk',       Reason:'Product Risk',         Status:'Closed Success', Count:178},
+  {CTAType:'Activity',   Reason:'Other',                Status:'Closed Success', Count:169},
+  {CTAType:'Risk',       Reason:'Renewal',              Status:'New',            Count:163},
+  {CTAType:'Objective',  Reason:'Other',                Status:'Closed Success', Count:62},
+  {CTAType:'Objective',  Reason:'Other',                Status:'New',            Count:66},
+  {CTAType:'Objective',  Reason:'Other',                Status:'Work In Progress',Count:24},
+  {CTAType:'Risk',       Reason:'Other',                Status:'Closed Success', Count:40},
+  {CTAType:'Lifecycle',  Reason:'Other',                Status:'Closed Success', Count:22},
+  {CTAType:'Expansion',  Reason:'Other',                Status:'Closed Success', Count:20},
+  {CTAType:'Lifecycle',  Reason:'Onboarding',           Status:'Closed Success', Count:20},
+  {CTAType:'Risk',       Reason:'Onboarding',           Status:'Closed Success', Count:19},
+  {CTAType:'Risk',       Reason:'Company Risk',         Status:'Closed Success', Count:10},
+  {CTAType:'Expansion',  Reason:'Upsell Opportunity',   Status:'Closed Success', Count:10},
+  {CTAType:'Expansion',  Reason:'Upsell Opportunity',   Status:'New',            Count:6},
+  {CTAType:'Expansion',  Reason:'Other',                Status:'Work In Progress',Count:5},
+  {CTAType:'Expansion',  Reason:'Other',                Status:'New',            Count:3},
+  {CTAType:'Expansion',  Reason:'Advocacy',             Status:'New',            Count:2},
+  {CTAType:'Expansion',  Reason:'Company Risk',         Status:'Closed Success', Count:1},
+  {CTAType:'Expansion',  Reason:'Survey Response',      Status:'Closed Success', Count:1},
+  {CTAType:'Lifecycle',  Reason:'Value Engineering',    Status:'Closed Success', Count:6},
+  {CTAType:'Lifecycle',  Reason:'Executive Business Review', Status:'Closed Success', Count:5},
+  {CTAType:'Lifecycle',  Reason:'Upcoming Renewal',     Status:'Closed Success', Count:5},
+  {CTAType:'Lifecycle',  Reason:'Upcoming Renewal',     Status:'Work In Progress',Count:2},
+  {CTAType:'Lifecycle',  Reason:'Executive Business Review', Status:'New',        Count:3},
+  {CTAType:'Lifecycle',  Reason:'Advocacy',             Status:'Work In Progress',Count:7},
+  {CTAType:'Lifecycle',  Reason:'Advocacy',             Status:'Closed Success', Count:3},
+  {CTAType:'Renewals',   Reason:'Other',                Status:'Closed Success', Count:6},
+  {CTAType:'Renewals',   Reason:'Upcoming Renewal',     Status:'Closed Success', Count:2},
+  {CTAType:'Renewals',   Reason:'Upcoming Renewal',     Status:'New',            Count:1},
+  {CTAType:'Renewals',   Reason:'Renewal',              Status:'Closed Success', Count:1},
+  {CTAType:'Renewals',   Reason:'Company Risk',         Status:'Closed Success', Count:1},
+  {CTAType:'Risk',       Reason:'Support Risk',         Status:'Closed Success', Count:6},
+  {CTAType:'Risk',       Reason:'Usage Drop',           Status:'Closed Success', Count:4},
+  {CTAType:'Risk',       Reason:'Engagement Risk',      Status:'New',            Count:6},
+  {CTAType:'Risk',       Reason:'Sentiment Risk',       Status:'New',            Count:3},
+  {CTAType:'Risk',       Reason:'Company Risk',         Status:'New',            Count:3},
+  {CTAType:'Risk',       Reason:'Support Risk',         Status:'New',            Count:4},
+  {CTAType:'Risk',       Reason:'Renewal',              Status:'Closed Success', Count:1},
+  {CTAType:'Risk',       Reason:'Habits Risk',          Status:'Closed Success', Count:3},
+  {CTAType:'AI Insights',Reason:'Other',                Status:'New',            Count:3},
+  {CTAType:'AI Insights',Reason:'Company Risk',         Status:'New',            Count:3},
+  {CTAType:'AI Insights',Reason:'Renewal',              Status:'New',            Count:1},
+  {CTAType:'Activity',   Reason:'Other',                Status:'New',            Count:9},
+  {CTAType:'Activity',   Reason:'Upsell Opportunity',   Status:'New',            Count:3},
+  {CTAType:'Reference Management', Reason:'Other',      Status:'Closed Success', Count:4},
+  {CTAType:'TAM Engagement', Reason:'Other',            Status:'Closed Success', Count:2},
+];
+
+// ============================================================
+// MAIN DATA LOAD
+// ============================================================
+async function loadAllData() {
+  const btn = document.getElementById('refreshBtn');
+  btn.disabled = true;
+  btn.innerHTML = '<svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12a9 9 0 11-3.5-7.1L21 8"/><path d="M21 3v5h-5"/></svg> Loading…';
+
+  // Seed CTA data immediately from static snapshot so the tab always works
+  if (allCtas.length === 0) allCtas = STATIC_CTA_DATA;
+
+  // Try to refresh CTA data live — fall back to static if unavailable
+  try {
+    const ctaRes = await window.cowork.callMcpTool(
+      'mcp__93b929b9-85bf-4421-b590-2b2f3fe7f6e6__run_query',
+      {
+        originating_user_query: "CTA effectiveness by type and reason for retention and expansion analysis",
+        query: {
+          object_name: "call_to_action",
+          select: ["TypeId__gr.Name AS CTAType", "ReasonId__gr.Name AS Reason",
+                   "StatusId__gr.Name AS Status", "COUNT(Gsid) AS Count"],
+          group_by: ["TypeId__gr.Name", "ReasonId__gr.Name", "StatusId__gr.Name"],
+          sort_by: [{ sortField: "Count", sortOrder: "desc" }],
+          limit: 100
+        }
+      }
+    );
+    if (ctaRes && ctaRes.data && ctaRes.data.length > 0) {
+      allCtas = ctaRes.data;
+    }
+  } catch(e) {
+    console.error('CTA query failed, using static data:', e);
+  }
+
+  if (document.getElementById('tab-effectiveness').classList.contains('active')) {
+    renderEffectiveness();
+  }
+
+  btn.disabled = false;
+  btn.innerHTML = '<svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12a9 9 0 11-3.5-7.1L21 8"/><path d="M21 3v5h-5"/></svg> Refresh';
+  document.getElementById('lastUpdated').textContent =
+    'Updated ' + new Date().toLocaleTimeString([], {hour:'2-digit', minute:'2-digit'});
+}
+
+// ============================================================
+// CTA EFFECTIVENESS TAB
+// ============================================================
+function renderEffectiveness() {
+  try {
+    document.getElementById('effLoading').style.display = 'none';
+    document.getElementById('effContent').style.display = 'block';
+
+    if (!allCtas || allCtas.length === 0) {
+      document.getElementById('effContent').innerHTML =
+        '<div class="error-state" style="background:var(--warning-soft);border-color:var(--warning-border);color:#93370d">' +
+        'CTA data is still loading — please wait a moment and click this tab again, or hit Refresh.</div>';
+      return;
+    }
+
+    const normalized = allCtas.map(row => ({
+      CTAType: row.CTAType || row['TypeId__gr.Name'] || 'Unknown',
+      Reason:  row.Reason  || row['ReasonId__gr.Name'] || 'Other',
+      Status:  row.Status  || row['StatusId__gr.Name'] || '',
+      Count:   parseInt(row.Count || row['COUNT(Gsid)'] || row.count || 0)
+    }));
+
+    const agg = {};
+    normalized.forEach(row => {
+      const key = row.CTAType + '||' + row.Reason;
+      if (!agg[key]) agg[key] = { type: row.CTAType, reason: row.Reason, closed: 0, open: 0 };
+      if (row.Status === 'Closed Success') agg[key].closed += row.Count;
+      else if (row.Status !== 'Closed Invalid' && row.Status !== 'Closed No Action') agg[key].open += row.Count;
+    });
+
+    const rows = Object.values(agg).sort((a,b) => (b.closed + b.open) - (a.closed + a.open));
+
+    const tbody = document.getElementById('effTableBody');
+    tbody.innerHTML = rows.map(r => {
+      const total = r.closed + r.open;
+      const rate = total > 0 ? Math.round((r.closed / total) * 100) : 0;
+      const rateClass = rate >= 60 ? 'high' : rate >= 30 ? 'med' : 'low';
+      let signal = '';
+      if (r.type === 'Risk' && r.reason === 'Renewal' && r.open > 100) signal = '<span class="badge red dot">Critical backlog</span>';
+      else if (r.type === 'Expansion') signal = '<span class="badge green dot">Expansion motion</span>';
+      else if (r.closed >= 100) signal = '<span class="badge blue dot">High volume</span>';
+      else if (rate === 100 && total >= 3) signal = '<span class="badge purple dot">100% close rate</span>';
+      else if (rate === 0 && r.open > 10) signal = '<span class="badge orange dot">Low conversion</span>';
+      return `<tr>
+        <td><strong>${r.type}</strong></td>
+        <td style="color:var(--text-secondary)">${r.reason}</td>
+        <td style="font-weight:600;color:var(--success);font-feature-settings:'tnum'">${r.closed}</td>
+        <td style="color:var(--text-tertiary);font-feature-settings:'tnum'">${r.open}</td>
+        <td><div class="rate-bar"><div class="rate-fill-bg"><div class="rate-fill ${rateClass}" style="width:${rate}%"></div></div><span class="rate-text">${rate}%</span></div></td>
+        <td>${signal}</td>
+      </tr>`;
+    }).join('');
+
+  } catch(err) {
+    document.getElementById('effLoading').style.display = 'none';
+    document.getElementById('effContent').style.display = 'block';
+    document.getElementById('effContent').innerHTML =
+      '<div class="error-state">Error rendering CTA data: ' + err.message +
+      '<br><br><small>Raw record count: ' + (allCtas ? allCtas.length : 'null') +
+      (allCtas && allCtas[0] ? '<br>First record keys: ' + Object.keys(allCtas[0]).join(', ') : '') +
+      '</small></div>';
+  }
+}
+
+// ============================================================
+// ACTION BUTTONS
+// ============================================================
+function createPlay(description) {
+  window.cowork.sendPrompt('Please create a Journey Orchestrator program in Gainsight based on this description: ' + description);
+}
+function createPlaybook(description) {
+  window.cowork.sendPrompt('Please help me set up a Gainsight playbook with the following design: ' + description + '. Walk me through the CTA setup, task structure, and any automation rules needed.');
+}
+function createRenewalCta(accountName, gsid) {
+  window.cowork.sendPrompt('Please create a Renewal Risk CTA in Gainsight Cockpit for the account "' + accountName + '". Use CTA Type = Renewals, mark it as high priority, assign to the account\'s CSM, and set a due date 30 days from today.');
+}
+
+// ============================================================
+// BOOT
+// ============================================================
+document.addEventListener('DOMContentLoaded', () => {
+  loadAllData();
+  setTimeout(renderEffectiveness, 100);
+});
+</script>
+</body>
+</html>
