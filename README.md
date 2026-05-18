@@ -1,150 +1,107 @@
-# Retention & Expansion Intelligence
+# Process Effectiveness
 
-A live, single-file HTML dashboard that surfaces customer success process effectiveness — built as a [Cowork](https://claude.com/) artifact that pulls live data from Gainsight via MCP and falls back to a pre-analyzed snapshot when the connector is unavailable.
+A lightweight HTML dashboard that puts proven and AI-recommended customer success plays in one place — and lets you spin up the matching Gainsight asset with a single click.
 
-The dashboard turns raw CTA (Call-to-Action) data into operational intelligence: which Journey Orchestrator programs are working, which are quietly failing, which proven plays have evidence behind them, and which new plays the data suggests you should build.
+Built as a [Cowork](https://claude.com/) artifact. Each play card is a self-contained brief; each "Create" button hands the play description to Claude, which then walks you through building the Journey Orchestrator program or Playbook in Gainsight.
 
----
+## Contents
 
-## Preview
+- [Why this exists](#why-this-exists)
+- [What's inside](#whats-inside)
+- [Running it](#running-it)
+- [Editing the plays](#editing-the-plays)
+- [Theming](#theming)
+- [How the buttons work](#how-the-buttons-work)
+- [Project layout](#project-layout)
 
-The dashboard ships as a single `index.html` file with four tabs:
+## Why this exists
 
-| Tab | What it shows |
-| --- | --- |
-| **CTA Effectiveness** | Close-rate matrix across every CTA Type × Reason combination, plus a process-gap analysis |
-| **Journey Orchestrator** | Program-by-program breakdown of what's firing reliably vs. backlog-only |
-| **Proven Plays** | Six retention/expansion motions backed by Gainsight + Slack evidence |
-| **Recommended Plays** | AI-generated plays with one-click "Create as Journey Program" / "Create Playbook" actions |
+Customer success teams collect mountains of evidence — closed-won deals in Slack, Cockpit CTA outcomes, EBR signals — but rarely turn that evidence into reusable plays. This artifact does two things at once:
 
----
+1. **Documents the plays your team has already proven** — with the deal, the quote, the metric.
+2. **Surfaces AI-suggested plays your data implies you should be running** — with trigger conditions and expected outcomes spelled out.
 
-## Features
+Every play has a button that turns the brief into an action: a chat with Claude that builds the Journey Orchestrator program or Playbook for you, step by step.
 
-- **Live data via MCP** — calls `mcp__...__run_query` against the Gainsight `call_to_action` object on load and on refresh, with automatic fallback to a static snapshot if the connector is unreachable
-- **Zero build step** — pure HTML/CSS/JS in one file, ready to serve from any static host or render inside Cowork
-- **Modern, accessible UI** — Inter typography, Lucide-style inline SVG icons, semantic color tokens, tabular-nums for clean number alignment, responsive grid breakpoints
-- **One-click asset creation** — every recommended play has a button that sends a fully-specified prompt back to Claude via `window.cowork.sendPrompt()` to walk you through creating the Journey Orchestrator program or Playbook in Gainsight
-- **Self-contained** — no external CSS frameworks, no bundlers, no npm dependencies. Only network call out of the page is Google Fonts for Inter + JetBrains Mono
+## What's inside
 
----
+Two tabs, both rendered from static markup baked into the page:
 
-## Tech stack
+**Proven Plays.** Six retention/expansion motions with verified outcomes — Bundled Renewal + Expansion (Tanium $615K), Overage CTA Automation (Mailgun 14 deals/$88K), Staircase AI Cross-Sell ($332K by a single CSM), Product Risk Resolution (178 closed CTAs), EBR-Triggered Expansion Discovery (100% close rate), and Customer Communities SFDC Displacement.
 
-- HTML + vanilla CSS (CSS custom properties for theming) + vanilla JS
-- [Inter](https://rsms.me/inter/) and [JetBrains Mono](https://www.jetbrains.com/lp/mono/) via Google Fonts
-- [Cowork artifact runtime](https://claude.com/) for `window.cowork.callMcpTool` and `window.cowork.sendPrompt`
-- Gainsight MCP server for the live `run_query` call against the `call_to_action` object
+**Recommended Plays.** Six AI-generated suggestions with trigger conditions and expected outcomes — Renewal Velocity Program, Upsell Pipeline Conversion Sprint, Dark Account Reactivation, CSQL Automation, Product Risk → Expansion Bridge, and Multi-Product Renewal Bundling.
 
----
+Each card includes a "Create Journey Program" button (primary) and a "Create Playbook" button (secondary).
 
-## File structure
+## Running it
 
-```
-.
-├── index.html        # The entire dashboard — markup, styles, scripts, static data
-└── README.md         # This file
-```
+**In Cowork.** Upload `index.html` or pass it to `create_artifact`. Open the artifact. Click a button. That's the whole loop.
 
-The `<script type="application/json" id="cowork-artifact-meta">` block at the top of `index.html` declares the artifact name, MCP tools, and connector requirements that Cowork uses to wire the artifact into a workspace.
+**As a static page.** It works anywhere — file system, GitHub Pages, S3, Netlify, `python3 -m http.server`. The Cowork-specific button handlers become no-ops outside the Cowork runtime, so nothing breaks; the buttons just won't open a chat.
 
----
+There is no build step, no `npm install`, no bundler. The only network request the page makes is to Google Fonts for Inter and JetBrains Mono.
 
-## Getting started
+## Editing the plays
 
-### Run it as a Cowork artifact
+All play content lives directly in `index.html` — no JSON, no CMS, no templating. Search for the play title, edit the surrounding HTML.
 
-1. Open Cowork and upload `index.html`, or call `create_artifact` with the file contents.
-2. Make sure the Gainsight MCP server (`Gainsight-CSMCP-Demo` or your equivalent) is connected.
-3. Open the artifact — it will auto-load CTA data on first render and stamp the header with the refresh time.
+**To change a proven play's metrics**, edit the three `<div class="play-metric">` blocks inside its `metrics-bar`.
 
-### Run it as a static page
+**To change a recommended play's button prompt**, edit the string passed to `createPlay(...)` or `createPlaybook(...)`. That string is the exact prompt Claude receives, so be specific about triggers, thresholds, escalation rules, and outcomes.
 
-The dashboard works as a regular static page too — useful for screenshots, demos, or hosting on GitHub Pages. The MCP calls will fail gracefully and the page will render against the embedded `STATIC_CTA_DATA` snapshot.
+**To add a new play**, copy an existing `.play-card` or `.rec-play-card` block and paste it inside the appropriate grid. The card width auto-balances; the icon colors are limited to the predefined classes (`blue`, `green`, `purple`, `orange`, `teal`, `pink`).
 
-```bash
-# Any static server works
-python3 -m http.server 8000
-# then visit http://localhost:8000
-```
+## Theming
 
----
+Every color, radius, and shadow is a CSS custom property declared in `:root` at the top of the `<style>` block. To rebrand:
 
-## Configuration
-
-### Pointing at a different Gainsight tenant
-
-Update the `mcpTools` and `mcpServerNames` entries in the metadata block at the top of `index.html`:
-
-```html
-<script type="application/json" id="cowork-artifact-meta">
-{
-  "name": "Retention Expansion Intelligence",
-  "schemaVersion": 1,
-  "mcpTools": ["mcp__<your-server-id>__run_query"],
-  "mcpServerNames": ["<Your-Gainsight-MCP-Name>"]
+```css
+:root {
+  --accent: #4f46e5;       /* primary actions, links, focus states */
+  --accent-soft: #eef2ff;  /* tinted backgrounds */
+  --success: #079455;
+  --warning: #b54708;
+  --danger:  #b42318;
 }
-</script>
 ```
 
-Then update the matching `window.cowork.callMcpTool(...)` call inside `loadAllData()` so the tool name lines up.
+Typography is set on `body` — swap the `font-family` declaration to change the entire dashboard.
 
-### Adjusting the query
+## How the buttons work
 
-The CTA query lives in `loadAllData()`. It groups by `TypeId__gr.Name`, `ReasonId__gr.Name`, and `StatusId__gr.Name` and counts CTAs. Edit the `select`, `group_by`, or `sort_by` arrays to reshape the dataset — `renderEffectiveness()` normalizes field names, so as long as the rows expose `CTAType`, `Reason`, `Status`, and `Count`, the rest of the dashboard keeps working.
-
-### Refreshing the static fallback
-
-`STATIC_CTA_DATA` is the snapshot the dashboard uses when MCP is unavailable. Replace it with the output of a fresh `run_query` whenever the underlying data drifts significantly — the schema is an array of `{CTAType, Reason, Status, Count}` objects.
-
-### Editing the plays
-
-Proven plays live in the `#tab-proven` section and recommended plays in `#tab-recommended`. Each card is plain HTML — change copy, evidence quotes, metric numbers, and step lists in place. The action buttons accept a free-form description string that gets sent back to Claude via `sendPrompt()`, so be specific about triggers, conditions, and expected outcomes.
-
----
-
-## How the action buttons work
-
-Every "Create Journey Program" or "Create Playbook" button calls one of two helpers:
+Both action helpers are thin wrappers around `window.cowork.sendPrompt`:
 
 ```js
 function createPlay(description) {
-  window.cowork.sendPrompt('Please create a Journey Orchestrator program in Gainsight based on this description: ' + description);
+  window.cowork.sendPrompt(
+    'Please create a Journey Orchestrator program in Gainsight based on this description: ' + description
+  );
 }
 
 function createPlaybook(description) {
-  window.cowork.sendPrompt('Please help me set up a Gainsight playbook with the following design: ' + description + '. Walk me through the CTA setup, task structure, and any automation rules needed.');
+  window.cowork.sendPrompt(
+    'Please help me set up a Gainsight playbook with the following design: ' + description +
+    '. Walk me through the CTA setup, task structure, and any automation rules needed.'
+  );
 }
 ```
 
-`window.cowork.sendPrompt` sends a message into the Cowork chat as if the user typed it, kicking off an agent conversation to actually create the asset. Outside of Cowork these calls are no-ops, so the dashboard remains safe to demo as a static page.
+`sendPrompt` injects a message into the active Cowork chat as if the user had typed it. From there, Claude handles asset creation conversationally — asking for missing details, confirming trigger logic, and posting back when the asset is built.
 
----
+## Project layout
 
-## Customization tips
+```
+.
+├── index.html     # The entire dashboard
+└── README.md      # This file
+```
 
-- **Theme colors** — every color is a CSS variable at the top of the `<style>` block. Swap `--accent`, `--success`, `--danger`, etc. to match your brand
-- **Tabs** — to add a tab, add a `.tab` div in `.tabs`, a matching `.tab-content` block, and extend the `ids` array inside `showTab()`
-- **Charts** — the original version of this artifact pulled Chart.js from a CDN. The redesigned version uses pure CSS for bars; reintroduce Chart.js by adding the `<script src=...>` back if you want trended visualizations
-
----
-
-## Data sources
-
-- **Gainsight** — Cockpit CTA data (Type, Reason, Status), Company health, ARR, renewal stages
-- **Staircase AI** — engagement signals (referenced in the "Dark Account Reactivation" recommended play)
-- **Slack** — deal-win evidence cited in the Proven Plays (#sfdc-ring-the-gong, #teammate_announcements)
-
-Only Gainsight is queried live by the dashboard today; the Staircase and Slack data points are baked into the proven/recommended play copy as evidence.
-
----
+That's it. One file to ship, one file to document, one place to edit.
 
 ## Browser support
 
-Modern evergreen browsers (Chrome, Edge, Firefox, Safari). Uses CSS custom properties, CSS grid, `backdrop-filter`, and `font-feature-settings` — no fallback layer is shipped.
-
----
+Modern evergreen browsers — Chrome, Edge, Firefox, Safari. Uses CSS custom properties, CSS grid, `backdrop-filter`, and `font-feature-settings`. No IE fallback.
 
 ## License
 
-Internal Gainsight asset — adapt freely within your organization.
+Internal Gainsight asset. Adapt freely within your organization.
